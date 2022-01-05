@@ -34,16 +34,78 @@ class StadiumObject:
             self.kickOffReset = "partial"
             self.bg = BackgroundObject("classic")
             self.traits = None
-            self.vertexes = None
-            self.segments = None
-            self.goals = None
-            self.discs = None
-            self.planes = None
+            self.vertexes = [
+                            Vertex(Vector(-370,170),cMask=["ball"]),
+                            Vertex(Vector(-370,64),cMask=["ball"]),
+                            Vertex(Vector(-370,-64),cMask=["ball"]),
+                            Vertex(Vector(-370,-170),cMask=["ball"]),
+
+                            Vertex(Vector(370,170),cMask=["ball"]),
+                            Vertex(Vector(370,64),cMask=["ball"]),
+                            Vertex(Vector(370,-64),cMask=["ball"]),
+                            Vertex(Vector(370,-170),cMask=["ball"]),
+
+                            Vertex(Vector(0,200), 0.1, ["red", "blue"], ["redKO", "blueKO"]),
+                            Vertex(Vector(0,75), 0.1, ["red", "blue"], ["redKO", "blueKO"]),
+                            Vertex(Vector(0,-75), 0.1, ["red", "blue"], ["redKO", "blueKO"]),
+                            Vertex(Vector(0,-200), 0.1, ["red", "blue"], ["redKO", "blueKO"]),
+
+                            Vertex(Vector(-380, -64), 0.1, cMask=["ball"]),
+                            Vertex(Vector(-400, -44), 0.1, cMask=["ball"]),
+                            Vertex(Vector(-400,  44), 0.1, cMask=["ball"]),
+                            Vertex(Vector(-380,  64), 0.1, cMask=["ball"]),
+
+                            Vertex(Vector(380, -64), 0.1, cMask=["ball"]),
+                            Vertex(Vector(400, -44), 0.1, cMask=["ball"]),
+                            Vertex(Vector(400,  44), 0.1, cMask=["ball"]),
+                            Vertex(Vector(380,  64), 0.1, cMask=["ball"]),
+                            ]
+            self.segments = [
+                            Segment(self.vertexes[0], self.vertexes[1], bCoef=1, vis=False, cMask=["ball"]),
+                            Segment(self.vertexes[2], self.vertexes[3], bCoef=1, vis=False, cMask=["ball"]),
+                            Segment(self.vertexes[4], self.vertexes[5], bCoef=1, vis=False, cMask=["ball"]),
+                            Segment(self.vertexes[6], self.vertexes[7], bCoef=1, vis=False, cMask=["ball"]),
+
+                            Segment(self.vertexes[12], self.vertexes[13], bCoef=0.1, vis=True, cMask=["ball"], curve=-90),
+                            Segment(self.vertexes[13], self.vertexes[14], bCoef=0.1, vis=True, cMask=["ball"]),
+                            Segment(self.vertexes[14], self.vertexes[15], bCoef=0.1, vis=True, cMask=["ball"], curve=-90),
+
+                            Segment(self.vertexes[16], self.vertexes[17], bCoef=0.1, vis=True, cMask=["ball"], curve=90),
+                            Segment(self.vertexes[17], self.vertexes[18], bCoef=0.1, vis=True, cMask=["ball"]),
+                            Segment(self.vertexes[18], self.vertexes[19], bCoef=0.1, vis=True, cMask=["ball"], curve=90),
+
+                            Segment(self.vertexes[8],  self.vertexes[9],  bCoef=1, vis=False, cMask=["red", "blue"], cGroup=["redKO", "blueKO"]),
+                            Segment(self.vertexes[9],  self.vertexes[10], bCoef=1, vis=False, cMask=["red", "blue"], cGroup=["redKO", "blueKO"]),
+                            Segment(self.vertexes[9],  self.vertexes[10], bCoef=1, vis=False, cMask=["red", "blue"], cGroup=["redKO", "blueKO"]),
+                            Segment(self.vertexes[10], self.vertexes[11], bCoef=1, vis=False, cMask=["red", "blue"], cGroup=["redKO", "blueKO"]),
+                            ]
+            self.goals = [
+                        Goal(Vector(-370,64), Vector(-370,-64), "red"),
+                        Goal(Vector(370,64), Vector(370,-64), "blue"),
+                        ]
+            self.discs = [
+                        Disc(Vector(-370,64), radius=8, invMass=0, color=0xFFCCCC),
+                        Disc(Vector(-370,-64), radius=8, invMass=0, color=0xFFCCCC),
+
+                        Disc(Vector(370,64), radius=8, invMass=0, color=0xCCCCFF),
+                        Disc(Vector(370,-64), radius=8, invMass=0, color=0xCCCCFF),
+                        ]
+            self.planes = [
+                            Plane(Vector(0, 1), -170, cMask=["ball"]),
+                            Plane(Vector(0, -1), -170, cMask=["ball"]),
+
+                            Plane(Vector(0, 1), -200, 0.1),
+                            Plane(Vector(0, -1), -200, 0.1),
+
+                            Plane(Vector(1, 0), -420, 0.1),
+                            Plane(Vector(-1, 0), -420, 0.1),
+
+                            ]
             self.joints = None
             self.redSpawnPoints = []
             self.blueSpawnPoints = []
-            self.playerPhysics = None
-            self.ballPhysics = None
+            self.playerPhysics = PlayerPhysics()
+            self.ballPhysics = BallPhysics()
 
 class BackgroundObject:
     """
@@ -63,7 +125,7 @@ class Vertex:
     """
     A vertex is a point which can collide with discs but cannot move and is not visible.
     """
-    def __init__(self, pos=Vector(), bCoef=1, cMask=[], cGroup=[]) -> None:
+    def __init__(self, pos=Vector(0, 0), bCoef=1, cMask=[], cGroup=[]) -> None:
         self.pos = pos
         self.bCoef = bCoef
         self.cMask = cMask
@@ -109,7 +171,7 @@ class Disc:
     """
     Discs are circular physical objects that are placed in the stadium, they can move and collide with other discs.
     """
-    def __init__(self, pos=Vector(), speed=Vector(), gravity=Vector(), radius=10, invMass=1, damping=0.99, color=0xFFFFFF, bCoef=0.5, cMask = [], cGroup = []) -> None:
+    def __init__(self, pos=Vector(0, 0), speed=Vector(0, 0), gravity=Vector(0, 0), radius=10, invMass=1, damping=0.99, color=0xFFFFFF, bCoef=0.5, cMask = [], cGroup = []) -> None:
         self.pos = pos
         self.speed = speed
         self.gravity = gravity
@@ -125,7 +187,7 @@ class PlayerPhysics:
     """
     PlayerPhysics describes physical constants affecting the players.
     """
-    def __init__(self, gravity=Vector(), radius=15, invMass=0.5, bCoef=0.5, damping=0.96, cMask=[], cGroup=[], acceleration=0.1, kickingAcceleration=0.07, kickingDamping=0.96, kickStrength=5, kickback=0) -> None:
+    def __init__(self, gravity=Vector(0, 0), radius=15, invMass=0.5, bCoef=0.5, damping=0.96, cMask=[], cGroup=[], acceleration=0.1, kickingAcceleration=0.07, kickingDamping=0.96, kickStrength=5, kickback=0) -> None:
         self.gravity = gravity
         self.radius = radius
         self.invMass = invMass
@@ -143,7 +205,7 @@ class BallPhysics:
     """
     BallPhysics describes physical constants affecting the ball.
     """
-    def __init__(self, gravity=Vector(), radius=10, invMass=1, bCoef=0.5, damping=0.99, cMask=["all"], cGroup=["ball"], color=0xFFFFFF) -> None:
+    def __init__(self, gravity=Vector(0, 0), radius=10, invMass=1, bCoef=0.5, damping=0.99, cMask=["all"], cGroup=["ball"], color=0xFFFFFF) -> None:
         self.gravity = gravity
         self.radius = radius
         self.invMass = invMass

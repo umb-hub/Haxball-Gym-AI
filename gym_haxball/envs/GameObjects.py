@@ -21,28 +21,29 @@ class StadiumObject:
 
     See reference to https://github.com/haxball/haxball-issues/wiki/Stadium-(.hbs)-File
     """
-    def __init__(self) -> None:
+    def __init__(self, stadium) -> None:
         """Default stadium"""
-        self.name = "Classic"
-        self.cameraWidth = 420
-        self.cameraHeight = 240
-        self.maxViewWidth = 0 #0 for disable feature
-        self.cameraFollow = "ball"
-        self.spawnDistance = 170
-        self.canBeStored = True
-        self.kickOffReset = "partial"
-        self.bg = BackgroundObject("classic")
-        self.traits = None
-        self.vertexes = None
-        self.segments = None
-        self.goals = None
-        self.discs = None
-        self.planes = None
-        self.joints = None
-        self.redSpawnPoints = []
-        self.blueSpawnPoints = []
-        self.playerPhysics = None
-        self.ballPhysics = None
+        if stadium == "classic":
+            self.name = "Classic"
+            self.cameraWidth = 420
+            self.cameraHeight = 240
+            self.maxViewWidth = 0 #0 for disable feature
+            self.cameraFollow = "ball"
+            self.spawnDistance = 170
+            self.canBeStored = True
+            self.kickOffReset = "partial"
+            self.bg = BackgroundObject("classic")
+            self.traits = None
+            self.vertexes = None
+            self.segments = None
+            self.goals = None
+            self.discs = None
+            self.planes = None
+            self.joints = None
+            self.redSpawnPoints = []
+            self.blueSpawnPoints = []
+            self.playerPhysics = None
+            self.ballPhysics = None
 
 class BackgroundObject:
     """
@@ -82,6 +83,18 @@ class Segment:
         self.cGroup = cMask
         self.vis = vis
         self.color = color
+
+class Plane:
+    """
+    A segment is a line (curved or straight) that connects two vertexes. Discs can collide with segments and they can also be used as decoration.
+    """
+    def __init__(self, normal, dist, bCoef=1, cMask=[], cGroup=[]) -> None:
+        self.normal = normal
+        self.dist = dist
+        self.bCoef = bCoef
+        self.cMask = cMask
+        self.cGroup = cMask
+   
 
 class Goal:
     """

@@ -1,1 +1,1 @@
-from gym_soccer.envs.haxball_env import HaxballEnv
+from gym_haxball.envs.haxball_env import HaxballEnv
